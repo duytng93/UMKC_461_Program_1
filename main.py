@@ -2,6 +2,7 @@ import pandas as pd
 from geopy.distance import geodesic
 import time
 from searching_algorithms import *
+import matplotlib.pyplot as plt
 
 # read coordinates file: import pandas as pd
 coordinates_df = pd.read_csv("coordinates.csv", header=None)
@@ -48,6 +49,36 @@ def find_path_and_processing_time(find_path_func, *args, **kwargs):
     # Formatting execution_time to display up to 9 decimal places
     execution_time = "{:.9f}".format(execution_time)
     return path, execution_time
+  
+def displayGraph(locations,adjacency, path):
+  fig, ax = plt.subplots()
+
+  for location, (latitude, longitude) in locations.items():
+      ax.scatter(longitude, latitude)  # Plot points
+      ax.text(longitude, latitude, location)  # Label points
+
+
+  for town in adjacency:
+      start_point = locations[town]
+      for adjacent_town in adjacency[town]:
+          end_point = locations[adjacent_town]
+          ax.plot([start_point[1], end_point[1]], [start_point[0], end_point[0]], color='lightgrey', lw=1)  # 'k-' means black line, lw is line width
+
+  # Draw the line
+  # Note: You need to pass the longitudes as the first list and latitudes as the second list
+  for index, town in enumerate(path):
+      if index != 0:
+          start_point = locations[path[index-1]]  # (lat, long)
+          end_point = locations[path[index]]  # (lat, long)
+          ax.plot([start_point[1], end_point[1]], [start_point[0], end_point[0]], color='red', lw=2)  # 'k-' means black line, lw is line width
+
+  # Set labels and title
+  ax.set_xlabel('Longitude')
+  ax.set_ylabel('Latitude')
+  ax.set_title(f'Path from {path[0]} to {path[-1]}')
+
+  # Show the plot
+  plt.show()
 
 
 # program startup: display all available towns:
@@ -101,8 +132,10 @@ while True:
   if path:
       print(f"\nPath from {source} to {destination}: {path}")
       print(f"Total distance is: {distance} miles")
+      displayGraph(town_coordinates, graph, path)
   else:
       print(f"No path found from {source} to {destination}.")
+      
   print(f"Execution time is: {processing_time}")
   continue_choice = input('\nDo you want to try another search method? 1 for Yes/ any number for No:')
   if continue_choice != '1': break
