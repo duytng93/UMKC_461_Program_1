@@ -92,7 +92,7 @@ def generate_google_map_with_path(path):
   center_latitude = sum(latitude_list) / len(latitude_list)
   center_longitude = sum(longitude_list) / len(longitude_list)
   gmap = gmplot.GoogleMapPlotter(center_latitude, 
-                                center_longitude, zoom=9,apikey='AIzaSyDM-2NAnk6FmhY5xt1v4RWWl4QA9JvcGPw') 
+                                center_longitude, zoom=9) 
 
   gmap.scatter( latitude_list, longitude_list, 'red', 
                               size = 40, marker = False ) 
