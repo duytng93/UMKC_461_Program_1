@@ -2,7 +2,9 @@ import pandas as pd
 from geopy.distance import geodesic
 import time
 from searching_algorithms import *
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+import gmplot 
+import webbrowser
 
 # read coordinates file: import pandas as pd
 coordinates_df = pd.read_csv("coordinates.csv", header=None)
@@ -50,37 +52,58 @@ def find_path_and_processing_time(find_path_func, *args, **kwargs):
     execution_time = "{:.9f}".format(execution_time)
     return path, execution_time
   
-def displayGraph(locations,adjacency, path):
-  fig, ax = plt.subplots()
+# def displayGraph(locations,adjacency, path):
+#   fig, ax = plt.subplots()
 
-  for location, (latitude, longitude) in locations.items():
-      ax.scatter(longitude, latitude)  # Plot points
-      ax.text(longitude, latitude, location)  # Label points
-
-
-  for town in adjacency:
-      start_point = locations[town]
-      for adjacent_town in adjacency[town]:
-          end_point = locations[adjacent_town]
-          ax.plot([start_point[1], end_point[1]], [start_point[0], end_point[0]], color='lightgrey', lw=1)  # 'k-' means black line, lw is line width
-
-  # Draw the line
-  # Note: You need to pass the longitudes as the first list and latitudes as the second list
-  for index, town in enumerate(path):
-      if index != 0:
-          start_point = locations[path[index-1]]  # (lat, long)
-          end_point = locations[path[index]]  # (lat, long)
-          ax.plot([start_point[1], end_point[1]], [start_point[0], end_point[0]], color='red', lw=2)  # 'k-' means black line, lw is line width
-
-  # Set labels and title
-  ax.set_xlabel('Longitude')
-  ax.set_ylabel('Latitude')
-  ax.set_title(f'Path from {path[0]} to {path[-1]}')
-
-  # Show the plot
-  plt.show()
+#   for location, (latitude, longitude) in locations.items():
+#       ax.scatter(longitude, latitude)  # Plot points
+#       ax.text(longitude, latitude, location)  # Label points
 
 
+#   for town in adjacency:
+#       start_point = locations[town]
+#       for adjacent_town in adjacency[town]:
+#           end_point = locations[adjacent_town]
+#           ax.plot([start_point[1], end_point[1]], [start_point[0], end_point[0]], color='lightgrey', lw=1)  # 'k-' means black line, lw is line width
+
+#   # Draw the line
+#   # Note: You need to pass the longitudes as the first list and latitudes as the second list
+#   for index, town in enumerate(path):
+#       if index != 0:
+#           start_point = locations[path[index-1]]  # (lat, long)
+#           end_point = locations[path[index]]  # (lat, long)
+#           ax.plot([start_point[1], end_point[1]], [start_point[0], end_point[0]], color='red', lw=2)  # 'k-' means black line, lw is line width
+
+#   # Set labels and title
+#   ax.set_xlabel('Longitude')
+#   ax.set_ylabel('Latitude')
+#   ax.set_title(f'Path from {path[0]} to {path[-1]}')
+
+#   # Show the plot
+#   plt.show()
+
+def generate_google_map_with_path(path):
+  latitude_list =[]
+  longitude_list = []
+  for town in path:
+    latitude_list.append(town_coordinates[town][0])
+    longitude_list.append(town_coordinates[town][1])
+  # Calculate the average latitude and longitude
+  center_latitude = sum(latitude_list) / len(latitude_list)
+  center_longitude = sum(longitude_list) / len(longitude_list)
+  gmap = gmplot.GoogleMapPlotter(center_latitude, 
+                                center_longitude, zoom=9,apikey='AIzaSyDM-2NAnk6FmhY5xt1v4RWWl4QA9JvcGPw') 
+
+  gmap.scatter( latitude_list, longitude_list, 'red', 
+                              size = 40, marker = False ) 
+  
+  gmap.plot(latitude_list, longitude_list,  
+           'cornflowerblue', edge_width = 2.5)
+  
+  gmap.draw('map.html')
+  
+  webbrowser.open('map.html')
+  
 # program startup: display all available towns:
 print("Available towns:")
 counter = 0
@@ -132,7 +155,8 @@ while True:
   if path:
       print(f"\nPath from {source} to {destination}: {path}")
       print(f"Total distance is: {distance} miles")
-      displayGraph(town_coordinates, graph, path)
+      #displayGraph(town_coordinates, graph, path)
+      generate_google_map_with_path(path)
   else:
       print(f"No path found from {source} to {destination}.")
       
